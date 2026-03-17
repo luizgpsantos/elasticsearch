@@ -160,19 +160,23 @@ public class RestCatRecoveryAction extends AbstractCatAction {
                 );
                 t.addCell(state.getIndex().totalRecoverFiles());
                 t.addCell(state.getIndex().recoveredFileCount());
-                t.addCell(String.format(Locale.ROOT, "%1.1f%%", state.getIndex().recoveredFilesPercent()));
+                t.addCell(percentCell(state.getIndex().recoveredFilesPercent()));
                 t.addCell(state.getIndex().totalFileCount());
                 t.addCell(ByteSizeValue.ofBytes(state.getIndex().totalRecoverBytes()));
                 t.addCell(ByteSizeValue.ofBytes(state.getIndex().recoveredBytes()));
-                t.addCell(String.format(Locale.ROOT, "%1.1f%%", state.getIndex().recoveredBytesPercent()));
+                t.addCell(percentCell(state.getIndex().recoveredBytesPercent()));
                 t.addCell(ByteSizeValue.ofBytes(state.getIndex().totalBytes()));
                 t.addCell(state.getTranslog().totalOperations());
                 t.addCell(state.getTranslog().recoveredOperations());
-                t.addCell(String.format(Locale.ROOT, "%1.1f%%", state.getTranslog().recoveredPercent()));
+                t.addCell(percentCell(state.getTranslog().recoveredPercent()));
                 t.endRow();
             }
         }
 
         return t;
+    }
+
+    private static RestTable.FormattedDouble percentCell(float value) {
+        return new RestTable.FormattedDouble(String.format(Locale.ROOT, "%1.1f%%", value), value);
     }
 }

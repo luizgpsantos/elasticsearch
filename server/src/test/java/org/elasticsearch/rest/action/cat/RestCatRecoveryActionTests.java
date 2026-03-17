@@ -36,6 +36,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -193,8 +194,25 @@ public class RestCatRecoveryActionTests extends ESTestCase {
         }
     }
 
-    private static String percent(float percent) {
-        return Strings.format("%1.1f%%", percent);
+    private static RestTable.FormattedDouble percent(float percent) {
+        return new RestTable.FormattedDouble(Strings.format("%1.1f%%", percent), percent);
+    }
+
+    public void testPercentColumnsSortNumerically() {
+        // Verify that FormattedDouble sorts numerically, not lexicographically.
+        // "9.5%" > "42.0%" lexicographically, but 9.5 < 42.0 numerically.
+        RestTable.FormattedDouble low = new RestTable.FormattedDouble("9.5%", 9.5);
+        RestTable.FormattedDouble mid = new RestTable.FormattedDouble("42.0%", 42.0);
+        RestTable.FormattedDouble high = new RestTable.FormattedDouble("100.0%", 100.0);
+
+        assertThat(low.compareTo(mid), lessThan(0));
+        assertThat(mid.compareTo(high), lessThan(0));
+        assertThat(low.compareTo(high), lessThan(0));
+
+        // Confirm the display strings are preserved
+        assertThat(low.toString(), equalTo("9.5%"));
+        assertThat(mid.toString(), equalTo("42.0%"));
+        assertThat(high.toString(), equalTo("100.0%"));
     }
 
 }
